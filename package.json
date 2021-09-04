@@ -1,0 +1,23 @@
+{
+  "name": "performance-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type":"module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/netoabel/node-performance-test.git"
+  },
+  "author": "netoabel <abel.neto@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/netoabel/node-performance-test/issues"
+  },
+  "homepage": "https://github.com/netoabel/node-performance-test#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
