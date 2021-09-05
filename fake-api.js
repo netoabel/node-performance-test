@@ -14,7 +14,7 @@ function slowEndpoint(req, res) {
     console.log('[/slow-endpoint] New incoming request.');
 
     const minTimeInMs = process.env.SLOW_ENDPOINT_MIN_TIME_MS || 10;
-    const maxTimeInMs = process.env.SLOW_ENDPOINT_MIN_TIME_MS || 3000;
+    const maxTimeInMs = process.env.SLOW_ENDPOINT_MAX_TIME_MS || 3000;
 
     respondAfterSomeTime(minTimeInMs, maxTimeInMs, res);
 }
@@ -23,7 +23,7 @@ function slowestEndpoint(req, res) {
     console.log('[/slowest-endpoint] New incoming request.');
 
     const minTimeInMs = process.env.SLOWEST_ENDPOINT_MIN_TIME_MS || 10000;
-    const maxTimeInMs = process.env.SLOWEST_ENDPOINT_MIN_TIME_MS || 30000;
+    const maxTimeInMs = process.env.SLOWEST_ENDPOINT_MAX_TIME_MS || 30000;
 
     respondAfterSomeTime(minTimeInMs, maxTimeInMs, res);
 }
