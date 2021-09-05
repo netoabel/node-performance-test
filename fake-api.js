@@ -11,51 +11,41 @@ app.listen(SERVER_PORT, () => {
 });
 
 app.get('/slow-endpoint', slowEndpoint);
-app.get('/slowest-endpoint', slowestEndpoint);
 
 function slowEndpoint(req, res) {
     console.log('[/slow-endpoint] New incoming request.');
 
-    const minTimeInMs = process.env.SLOW_ENDPOINT_MIN_TIME_MS || 10;
-    const maxTimeInMs = process.env.SLOW_ENDPOINT_MAX_TIME_MS || 3000;
+    const minTimeInSeconds = req.query?.min || 0.01;
+    const maxTimeInSeconds = req.query?.max || 0.5;
 
-    respondAfterSomeTime(minTimeInMs, maxTimeInMs, res);
+    respondAfterSomeTime(minTimeInSeconds, maxTimeInSeconds, res);
 }
 
-function slowestEndpoint(req, res) {
-    console.log('[/slowest-endpoint] New incoming request.');
+function respondAfterSomeTime(minTimeInSeconds, maxTimeInSeconds, res) {
+    doAfterSomeTime(minTimeInSeconds, maxTimeInSeconds, (err, timeElapsedInSeconds) => {
+        res.json({ message: `It took ${timeElapsedInSeconds} seconds to load!` });
 
-    const minTimeInMs = process.env.SLOWEST_ENDPOINT_MIN_TIME_MS || 10000;
-    const maxTimeInMs = process.env.SLOWEST_ENDPOINT_MAX_TIME_MS || 30000;
-
-    respondAfterSomeTime(minTimeInMs, maxTimeInMs, res);
-}
-
-function respondAfterSomeTime(minTimeInMs, maxTimeInMs, res) {
-    doAfterSomeTime(minTimeInMs, maxTimeInMs, (err, timeElapsedInMs) => {
-        res.json({ message: `It took ${timeElapsedInMs} ms to load!` });
-
-        console.log(`Response sent. (${timeElapsedInMs} ms)`);
+        console.log(`Response sent. (${timeElapsedInSeconds} seconds)`);
     });
 }
 
-function doAfterSomeTime(minTimeInMs, maxTimeInMs, callback) {
+function doAfterSomeTime(minTimeInSeconds, maxTimeInSeconds, callback) {
     var startTimeInMs = Date.now();
 
-    waitSomeSeconds(minTimeInMs, maxTimeInMs, () => {
-        const timeElapsedInMs = Date.now() - startTimeInMs;
-        callback(null, timeElapsedInMs);
+    waitSomeSeconds(minTimeInSeconds, maxTimeInSeconds, () => {
+        const timeElapsedInSeconds = (Date.now() - startTimeInMs) / 1000;
+        callback(null, timeElapsedInSeconds);
     });
 }
 
 function waitSomeSeconds(min, max, callback) {
-    console.log (`min: ${min} max ${max}`)
-    const timeInMs = getRandomIntegerInRange(min, max);
+    console.log(`min: ${min} max: ${max}`)
+    const timeInSeconds = getRandomNumberInRange(min, max);
 
-    console.log(`Running some heavy stuff for ${timeInMs} ms...`);
-    setTimeout(callback, timeInMs);
+    console.log(`Running some heavy stuff for ${timeInSeconds} seconds...`);
+    setTimeout(callback, timeInSeconds * 1000);
 }
 
-function getRandomIntegerInRange(min, max) {
-    return chance.integer({min, max});
+function getRandomNumberInRange(min, max) {
+    return chance.floating({ min, max });
 }
