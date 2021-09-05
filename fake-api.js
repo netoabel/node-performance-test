@@ -1,4 +1,5 @@
 import express from 'express';
+import { process } from 'ipaddr.js';
 
 const app = express();
 const SERVER_PORT = 3001;
@@ -10,33 +11,33 @@ app.listen(SERVER_PORT, () => {
 app.get('/slow-endpoint', slowEndpoint);
 app.get('/slowest-endpoint', slowestEndpoint);
 
-function slowEndpoint(req, res){
+function slowEndpoint(req, res) {
     console.log('[/slow-endpoint] New incoming request.');
 
-    const minTimeInMs = 10;
-    const maxTimeInMs = 3000;
+    const minTimeInMs = process.env.SLOW_ENDPOINT_MIN_TIME_MS || 10;
+    const maxTimeInMs = process.env.SLOW_ENDPOINT_MIN_TIME_MS || 3000;
 
     respondAfterSomeTime(minTimeInMs, maxTimeInMs, res);
 }
 
-function slowestEndpoint(req, res){
+function slowestEndpoint(req, res) {
     console.log('[/slowest-endpoint] New incoming request.');
 
-    const minTimeInMs = 10000;
-    const maxTimeInMs = 30000;
+    const minTimeInMs = process.env.SLOWEST_ENDPOINT_MIN_TIME_MS || 10000;
+    const maxTimeInMs = process.env.SLOWEST_ENDPOINT_MIN_TIME_MS || 30000;
 
     respondAfterSomeTime(minTimeInMs, maxTimeInMs, res);
 }
 
-function respondAfterSomeTime(minTimeInMs, maxTimeInMs, res){
+function respondAfterSomeTime(minTimeInMs, maxTimeInMs, res) {
     doAfterSomeTime(minTimeInMs, maxTimeInMs, (err, timeElapsedInMs) => {
         res.json({ message: `It took ${timeElapsedInMs} ms to load!` });
-        
+
         console.log(`Response sent. (${timeElapsedInMs} ms)`);
     });
 }
 
-function doAfterSomeTime(minTimeInMs, maxTimeInMs, callback){
+function doAfterSomeTime(minTimeInMs, maxTimeInMs, callback) {
     var startTimeInMs = Date.now();
 
     waitSomeSeconds(minTimeInMs, maxTimeInMs, () => {
