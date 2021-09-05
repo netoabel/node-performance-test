@@ -1,5 +1,4 @@
 import express from 'express';
-import { process } from 'ipaddr.js';
 
 const app = express();
 const SERVER_PORT = 3001;
