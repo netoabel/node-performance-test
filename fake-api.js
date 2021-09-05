@@ -22,7 +22,7 @@ function slowEndpoint(req, res){
 function slowestEndpoint(req, res){
     console.log('[/slowest-endpoint] New incoming request.');
 
-    const minTimeInMs = 3000;
+    const minTimeInMs = 10000;
     const maxTimeInMs = 30000;
 
     respondAfterSomeTime(minTimeInMs, maxTimeInMs, res);
