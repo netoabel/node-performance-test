@@ -1,4 +1,7 @@
 import express from 'express';
+import Chance from 'chance';
+
+const chance = new Chance();
 
 const app = express();
 const SERVER_PORT = 3001;
@@ -46,6 +49,7 @@ function doAfterSomeTime(minTimeInMs, maxTimeInMs, callback) {
 }
 
 function waitSomeSeconds(min, max, callback) {
+    console.log (`min: ${min} max ${max}`)
     const timeInMs = getRandomIntegerInRange(min, max);
 
     console.log(`Running some heavy stuff for ${timeInMs} ms...`);
@@ -53,5 +57,5 @@ function waitSomeSeconds(min, max, callback) {
 }
 
 function getRandomIntegerInRange(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
+    return chance.integer({min, max});
 }

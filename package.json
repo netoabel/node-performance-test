@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/netoabel/node-performance-test#readme",
   "dependencies": {
+    "chance": "^1.1.8",
     "express": "^4.17.1",
     "node-fetch": "^3.0.0"
   }
