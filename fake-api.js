@@ -1,30 +1,47 @@
 import express from 'express';
+
 const app = express();
-const SERVER_PORT = 3000;
-
-const MIN_RESPONSE_TIME_IN_SECONDS = 3;
-const MAX_RESPONSE_TIME_IN_SECONDS = 10;
-
-app.get('/slow-endpoint', slowEndpoint);
-app.get('/fast-endpoint', fastEndpoint);
+const SERVER_PORT = 3001;
 
 app.listen(SERVER_PORT, () => {
-    console.log('Server running.');
-})
+    console.log('API server running.');
+});
 
-function fastEndpoint(req, res){
-    console.log('[Fast Endpoint] New incoming request.');
-
-    res.json({ hello: 'world' });
-    console.log('[Fast Endpoint] Response sent.');
-}
+app.get('/slow-endpoint', slowEndpoint);
+app.get('/slowest-endpoint', slowestEndpoint);
 
 function slowEndpoint(req, res){
-    console.log('[Slow Endpoint] New incoming request.');
+    console.log('[/slow-endpoint] New incoming request.');
 
-    waitSomeSeconds(MIN_RESPONSE_TIME_IN_SECONDS, MAX_RESPONSE_TIME_IN_SECONDS, () => {
-        res.json({ hello: 'world' });
-        console.log('[Slow Endpoint] Response sent.');
+    const minTimeInSeconds = 1;
+    const maxTimeInSeconds = 5;
+
+    respondAfterSomeTime(minTimeInSeconds, maxTimeInSeconds, res);
+}
+
+function slowestEndpoint(req, res){
+    console.log('[/slowest-endpoint] New incoming request.');
+
+    const minTimeInSeconds = 3;
+    const maxTimeInSeconds = 30;
+
+    respondAfterSomeTime(minTimeInSeconds, maxTimeInSeconds, res);
+}
+
+function respondAfterSomeTime(minTimeInSeconds, maxTimeInSeconds, res){
+    doAfterSomeTime(minTimeInSeconds, maxTimeInSeconds, (err, timeElapsedInMs) => {
+        res.json({ message: `It took ${timeElapsedInMs} ms to load!` });
+        
+        console.log(`Response sent. (${timeElapsedInMs} ms)`);
+    });
+}
+
+function doAfterSomeTime(minTimeInSeconds, maxTimeInSeconds, callback){
+    var startTimeInMs = Date.now();
+
+    waitSomeSeconds(minTimeInSeconds, maxTimeInSeconds, () => {
+        const timeElapsedInMs = Date.now() - startTimeInMs;
+        callback(null, timeElapsedInMs);
     });
 }
 
