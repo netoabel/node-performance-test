@@ -27,19 +27,23 @@ async function getSomeDataFromTheAPI(req, res) {
 
     console.log('New incoming request. Getting data...');
 
-    const firstThing = await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`);
-    const secondThing = await request(`${API_URL}?min=${latencies.slowest.min}&max=${latencies.slowest.max}`);
-    const thirdThing = await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`);
-    const fourthThing = await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`);
-    const fifthThing = await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`);
+    const response = {
+        slow1: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
+        slowest: await request(`${API_URL}?min=${latencies.slowest.min}&max=${latencies.slowest.max}`),
+        slow2: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
+        slow3: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
+        slow4: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
+        slow5: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
+        slow6: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
+        slow7: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
+        slow8: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
+    }
 
-    const timeElapsedInMs = Date.now() - startTimeInMs;
+    const timeElapsedInSeconds = (Date.now() - startTimeInMs) / 1000;
 
-    const response = { timeElapsedInMs, firstThing, secondThing, thirdThing, fourthThing, fifthThing };
+    res.send({ timeElapsedInSeconds, ...response });
 
-    res.send(response);
-
-    console.log(`Response sent. (${timeElapsedInMs / 1000} seconds)`);
+    console.log(`Response sent. (${timeElapsedInSeconds / 1000} seconds)`);
 }
 
 async function request(url) {
