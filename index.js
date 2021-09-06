@@ -17,7 +17,7 @@ async function getSomeDataFromTheAPI(req, res) {
 
     var startTimeInMs = Date.now();
 
-    const response = await getDataSequentially();
+    const response = await getData();
 
     const timeElapsedInSeconds = (Date.now() - startTimeInMs) / 1000;
 
@@ -30,14 +30,33 @@ function fillSomeMemory(sizeInKB) {
     return new ArrayBuffer(sizeInKB);
 }
 
-async function getDataSequentially() {
-    const slowEndpoint = `${config.apiUrl}?min=${config.latencies.slow.min}&max=${config.latencies.slow.max}`;
-    const slowestEndpoint = `${config.apiUrl}?min=${config.latencies.slowest.min}&max=${config.latencies.slowest.max}`;
+async function getData() {
+    const endpoints = {
+        slow: getEndpointUrl('slow'),
+        slowest: getEndpointUrl('slowest')
+    }
 
-    const slowEndpointResults = await requestMultipleTimesSequentially(slowEndpoint, config.slowRequestsCount);
-    const slowestEndpointResults = await requestMultipleTimesSequentially(slowestEndpoint, config.slowestRequestsCount);
+    return config.isSequential ? await getDataSequentially(endpoints) : await getDataInParallel(endpoints);
+}
+
+function getEndpointUrl(latency) {
+    return `${config.apiUrl}?min=${config.latencies[latency].min}&max=${config.latencies[latency].max}`
+}
+
+async function getDataSequentially(endpoints) {
+    const slowEndpointResults = await requestMultipleTimesSequentially(endpoints.slow, config.slowRequestsCount);
+    const slowestEndpointResults = await requestMultipleTimesSequentially(endpoints.slowest, config.slowestRequestsCount);
 
     return [...slowEndpointResults, ...slowestEndpointResults];
+}
+
+async function getDataInParallel(endpoints) {
+    const slowEndpointResults = requestMultipleTimesInParallel(endpoints.slow, config.slowRequestsCount);
+    const slowestEndpointResults = requestMultipleTimesInParallel(endpoints.slowest, config.slowestRequestsCount);
+
+    const result = await Promise.all([slowEndpointResults, slowestEndpointResults]);
+
+    return result;
 }
 
 async function requestMultipleTimesSequentially(url, count) {
@@ -47,6 +66,14 @@ async function requestMultipleTimesSequentially(url, count) {
         result.push(response);
     }
     return result;
+}
+
+async function requestMultipleTimesInParallel(url, count) {
+    const requestPromises = [];
+    for (let i = 0; i < count; i++) {
+        requestPromises.push(request(url));
+    }
+    return Promise.all(requestPromises);
 }
 
 async function request(url) {
