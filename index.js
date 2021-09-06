@@ -3,6 +3,7 @@ import fetch from 'node-fetch';
 import config from './config.js';
 
 const app = express();
+app.use(express.static('.clinic'));
 
 app.listen(config.serverPort, () => {
     console.log('BFF server running.');
