@@ -28,7 +28,14 @@ async function getSomeDataFromTheAPI(req, res) {
 }
 
 function fillSomeMemory(sizeInKB) {
-    return new ArrayBuffer(sizeInKB);
+    let fakeString = "";
+    const sizeInBytes = sizeInKB * 1000;
+
+    for (let i = 0; i < sizeInBytes; i++) {
+        fakeString += "a";
+    }
+
+    return fakeString;
 }
 
 async function getData() {
