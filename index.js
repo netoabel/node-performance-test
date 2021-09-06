@@ -8,6 +8,8 @@ const API_URL = 'http://localhost:3001/slow-endpoint';
 const NUM_SLOW_REQUESTS = 8;
 const NUM_SLOWEST_REQUESTS = 1;
 
+const MEMORY_FILLER_SIZE_IN_BYTES = 400000;
+
 const latencies = {
     slow: {
         min: process.env.SLOW_ENDPOINT_MIN_SECONDS || 0.3,
@@ -28,6 +30,8 @@ app.get('/', getSomeDataFromTheAPI);
 async function getSomeDataFromTheAPI(req, res) {
     console.log('New incoming request. Getting data...');
 
+    const memoryFiller = fillSomeMemory();
+
     var startTimeInMs = Date.now();
 
     const response = await aggregateDataSequentially();
@@ -37,6 +41,10 @@ async function getSomeDataFromTheAPI(req, res) {
     res.send({ timeElapsedInSeconds, ...response });
 
     console.log(`Response sent. (${timeElapsedInSeconds} seconds)`);
+}
+
+function fillSomeMemory() {
+    return new ArrayBuffer(MEMORY_FILLER_SIZE_IN_BYTES);
 }
 
 async function aggregateDataSequentially() {
