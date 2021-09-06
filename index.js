@@ -1,27 +1,10 @@
 import express from 'express';
 import fetch from 'node-fetch';
+import config from './config.js';
 
 const app = express();
-const SERVER_PORT = 3000;
-const API_URL = 'http://localhost:3001/slow-endpoint';
 
-const NUM_SLOW_REQUESTS = 8;
-const NUM_SLOWEST_REQUESTS = 1;
-
-const MEMORY_FILLER_SIZE_IN_BYTES = 400000;
-
-const latencies = {
-    slow: {
-        min: process.env.SLOW_ENDPOINT_MIN_SECONDS || 0.3,
-        max: process.env.SLOW_ENDPOINT_MAX_SECONDS || 3
-    },
-    slowest: {
-        min: process.env.SLOWEST_ENDPOINT_MIN_SECONDS || 10,
-        max: process.env.SLOWEST_ENDPOINT_MAX_SECONDS || 30
-    }
-};
-
-app.listen(SERVER_PORT, () => {
+app.listen(config.serverPort, () => {
     console.log('BFF server running.');
 });
 
@@ -30,29 +13,29 @@ app.get('/', getSomeDataFromTheAPI);
 async function getSomeDataFromTheAPI(req, res) {
     console.log('New incoming request. Getting data...');
 
-    const memoryFiller = fillSomeMemory();
+    const fakePayload = fillSomeMemory(config.fakePayloadSizeInKB);
 
     var startTimeInMs = Date.now();
 
-    const response = await aggregateDataSequentially();
+    const response = await getDataSequentially();
 
     const timeElapsedInSeconds = (Date.now() - startTimeInMs) / 1000;
 
-    res.send({ timeElapsedInSeconds, ...response });
+    res.send({ timeElapsedInSeconds, ...response, fakePayload });
 
     console.log(`Response sent. (${timeElapsedInSeconds} seconds)`);
 }
 
-function fillSomeMemory() {
-    return new ArrayBuffer(MEMORY_FILLER_SIZE_IN_BYTES);
+function fillSomeMemory(sizeInKB) {
+    return new ArrayBuffer(sizeInKB);
 }
 
-async function aggregateDataSequentially() {
-    const slowEndpoint = `${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`;
-    const slowestEndpoint = `${API_URL}?min=${latencies.slowest.min}&max=${latencies.slowest.max}`;
+async function getDataSequentially() {
+    const slowEndpoint = `${config.apiUrl}?min=${config.latencies.slow.min}&max=${config.latencies.slow.max}`;
+    const slowestEndpoint = `${config.apiUrl}?min=${config.latencies.slowest.min}&max=${config.latencies.slowest.max}`;
 
-    const slowEndpointResults = await requestMultipleTimesSequentially(slowEndpoint, NUM_SLOW_REQUESTS);
-    const slowestEndpointResults = await requestMultipleTimesSequentially(slowestEndpoint, NUM_SLOWEST_REQUESTS);
+    const slowEndpointResults = await requestMultipleTimesSequentially(slowEndpoint, config.slowRequestsCount);
+    const slowestEndpointResults = await requestMultipleTimesSequentially(slowestEndpoint, config.slowestRequestsCount);
 
     return [...slowEndpointResults, ...slowestEndpointResults];
 }
