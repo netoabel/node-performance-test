@@ -5,6 +5,9 @@ const app = express();
 const SERVER_PORT = 3000;
 const API_URL = 'http://localhost:3001/slow-endpoint';
 
+const NUM_SLOW_REQUESTS = 8;
+const NUM_SLOWEST_REQUESTS = 1;
+
 const latencies = {
     slow: {
         min: process.env.SLOW_ENDPOINT_MIN_SECONDS || 0.3,
@@ -23,27 +26,36 @@ app.listen(SERVER_PORT, () => {
 app.get('/', getSomeDataFromTheAPI);
 
 async function getSomeDataFromTheAPI(req, res) {
-    var startTimeInMs = Date.now();
-
     console.log('New incoming request. Getting data...');
 
-    const response = {
-        slow1: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
-        slowest: await request(`${API_URL}?min=${latencies.slowest.min}&max=${latencies.slowest.max}`),
-        slow2: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
-        slow3: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
-        slow4: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
-        slow5: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
-        slow6: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
-        slow7: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
-        slow8: await request(`${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`),
-    }
+    var startTimeInMs = Date.now();
+
+    const response = await aggregateDataSequentially();
 
     const timeElapsedInSeconds = (Date.now() - startTimeInMs) / 1000;
 
     res.send({ timeElapsedInSeconds, ...response });
 
-    console.log(`Response sent. (${timeElapsedInSeconds / 1000} seconds)`);
+    console.log(`Response sent. (${timeElapsedInSeconds} seconds)`);
+}
+
+async function aggregateDataSequentially() {
+    const slowEndpoint = `${API_URL}?min=${latencies.slow.min}&max=${latencies.slow.max}`;
+    const slowestEndpoint = `${API_URL}?min=${latencies.slowest.min}&max=${latencies.slowest.max}`;
+
+    const slowEndpointResults = await requestMultipleTimesSequentially(slowEndpoint, NUM_SLOW_REQUESTS);
+    const slowestEndpointResults = await requestMultipleTimesSequentially(slowestEndpoint, NUM_SLOWEST_REQUESTS);
+
+    return [...slowEndpointResults, ...slowestEndpointResults];
+}
+
+async function requestMultipleTimesSequentially(url, count) {
+    const result = [];
+    for (let i = 0; i < count; i++) {
+        const response = await request(url);
+        result.push(response);
+    }
+    return result;
 }
 
 async function request(url) {
