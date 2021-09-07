@@ -80,6 +80,5 @@ function requestMultipleTimesInParallel(url, count) {
 
 async function request(url) {
     const response = await axios.get(url);
-
     return response.data;
 }
