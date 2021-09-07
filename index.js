@@ -21,7 +21,7 @@ async function getSomeDataFromTheAPI(req, res) {
 
     console.log(`Response sent (${timeElapsedInSeconds})`);
 
-    res.send({ timeElapsedInSeconds, ...result, fakePayload });
+    res.json({ timeElapsedInSeconds, ...result, fakePayload });
 }
 
 function fillSomeMemory(sizeInKB) {

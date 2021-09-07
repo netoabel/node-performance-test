@@ -1,4 +1,5 @@
 const express = require('express');
+const helper = require('./helper.js');
 const Chance = require('chance');
 
 const chance = new Chance();
@@ -15,40 +16,32 @@ app.listen(SERVER_PORT, () => {
 
 app.get('/slow-endpoint', slowEndpoint);
 
-function slowEndpoint(req, res) {
+async function slowEndpoint(req, res) {
     console.log('[/slow-endpoint] New incoming request.');
 
     const minTimeInSeconds = req.query?.min || DEFAULT_RESPONSE_TIME_MIN;
     const maxTimeInSeconds = req.query?.max || DEFAULT_RESPONSE_TIME_MAX;
 
-    respondAfterSomeTime(minTimeInSeconds, maxTimeInSeconds, res);
+    const { timeElapsedInSeconds } = await helper.runAndGetTimeElapsed(waitSomeSeconds, minTimeInSeconds, maxTimeInSeconds);
+
+    res.json({ message: `It took ${timeElapsedInSeconds} seconds to load!` });
+    console.log(`Response sent. (${timeElapsedInSeconds} seconds)`);
 }
 
-function respondAfterSomeTime(minTimeInSeconds, maxTimeInSeconds, res) {
-    doAfterSomeTime(minTimeInSeconds, maxTimeInSeconds, (err, timeElapsedInSeconds) => {
-        res.json({ message: `It took ${timeElapsedInSeconds} seconds to load!` });
+async function waitSomeSeconds(min, max) {
+    console.log(`min: ${min} max: ${max}`);
 
-        console.log(`Response sent. (${timeElapsedInSeconds} seconds)`);
-    });
-}
-
-function doAfterSomeTime(minTimeInSeconds, maxTimeInSeconds, callback) {
-    var startTimeInMs = Date.now();
-
-    waitSomeSeconds(minTimeInSeconds, maxTimeInSeconds, () => {
-        const timeElapsedInSeconds = (Date.now() - startTimeInMs) / 1000;
-        callback(null, timeElapsedInSeconds);
-    });
-}
-
-function waitSomeSeconds(min, max, callback) {
-    console.log(`min: ${min} max: ${max}`)
     const timeInSeconds = getRandomNumberInRange(min, max);
 
     console.log(`Running some heavy stuff for ${timeInSeconds} seconds...`);
-    setTimeout(callback, timeInSeconds * 1000);
+
+    await timeout(timeInSeconds * 1000);
 }
 
 function getRandomNumberInRange(min, max) {
     return chance.floating({ min, max });
+}
+
+function timeout(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
 }
