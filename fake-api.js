@@ -7,9 +7,6 @@ const chance = new Chance();
 const app = express();
 const SERVER_PORT = 3001;
 
-const DEFAULT_RESPONSE_TIME_MIN = 0.01;
-const DEFAULT_RESPONSE_TIME_MAX = 0.5;
-
 app.listen(SERVER_PORT, () => {
     console.log('API server running.');
 });
@@ -19,8 +16,8 @@ app.get('/slow-endpoint', slowEndpoint);
 async function slowEndpoint(req, res) {
     console.log('[/slow-endpoint] New incoming request.');
 
-    const minTimeInSeconds = req.query?.min || DEFAULT_RESPONSE_TIME_MIN;
-    const maxTimeInSeconds = req.query?.max || DEFAULT_RESPONSE_TIME_MAX;
+    const minTimeInSeconds = req.query?.min || process.env.API_DEFAULT_MIN_LATENCY_SECONDS;
+    const maxTimeInSeconds = req.query?.max || process.env.API_DEFAULT_MAX_LATENCY_SECONDS;
 
     const { timeElapsedInSeconds } = await helper.runAndGetTimeElapsed(waitSomeSeconds, minTimeInSeconds, maxTimeInSeconds);
 
