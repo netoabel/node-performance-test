@@ -4,7 +4,6 @@ const config = require('./config.js');
 const helper = require('./helper.js');
 
 const app = express();
-app.use(express.static('.clinic'));
 
 app.listen(config.serverPort, () => {
     console.log('BFF server running.');
