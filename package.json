@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,9 +17,9 @@
   },
   "homepage": "https://github.com/netoabel/node-performance-test#readme",
   "dependencies": {
+    "axios": "^0.21.4",
     "chance": "^1.1.8",
     "dotenv": "^10.0.0",
-    "express": "^4.17.1",
-    "node-fetch": "^3.0.0"
+    "express": "^4.17.1"
   }
 }

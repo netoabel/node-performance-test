@@ -1,5 +1,5 @@
-import express from 'express';
-import Chance from 'chance';
+const express = require('express');
+const Chance = require('chance');
 
 const chance = new Chance();
 

@@ -1,7 +1,7 @@
-import dotenv from 'dotenv';
+const dotenv = require('dotenv');
 dotenv.config();
 
-const config = {
+module.exports = {
     serverPort: process.env.NODE_PORT,
     apiUrl: process.env.API_URL,
     isSequential: process.env.SEQUENTIAL_REQUESTS == 'true',
@@ -19,5 +19,3 @@ const config = {
         }
     }
 };
-
-export default config;

@@ -1,6 +1,6 @@
-import express from 'express';
-import fetch from 'node-fetch';
-import config from './config.js';
+const express = require('express');
+const axios = require('axios').default;
+const config = require('./config.js');
 
 const app = express();
 app.use(express.static('.clinic'));
@@ -85,8 +85,7 @@ async function requestMultipleTimesInParallel(url, count) {
 }
 
 async function request(url) {
-    const data = await fetch(url);
-    const jsonParsedData = await data.json();
+    const response = await axios.get(url);
 
-    return jsonParsedData;
+    return response.data;
 }
