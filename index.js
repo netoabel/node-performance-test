@@ -1,6 +1,7 @@
 const express = require('express');
 const axios = require('axios').default;
 const config = require('./config.js');
+const helper = require('./helper.js');
 
 const app = express();
 app.use(express.static('.clinic'));
@@ -16,15 +17,11 @@ async function getSomeDataFromTheAPI(req, res) {
 
     const fakePayload = fillSomeMemory(config.fakePayloadSizeInKB);
 
-    var startTimeInMs = Date.now();
+    const {result, timeElapsedInSeconds} = await helper.runAndGetTimeElapsed(getData);
 
-    const response = await getData();
+    console.log(`Response sent (${timeElapsedInSeconds})`);
 
-    const timeElapsedInSeconds = (Date.now() - startTimeInMs) / 1000;
-
-    res.send({ timeElapsedInSeconds, ...response, fakePayload });
-
-    console.log(`Response sent. (${timeElapsedInSeconds} seconds)`);
+    res.send({ timeElapsedInSeconds, ...result, fakePayload });
 }
 
 function fillSomeMemory(sizeInKB) {
