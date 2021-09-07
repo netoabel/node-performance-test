@@ -36,15 +36,15 @@ function fillSomeMemory(sizeInKB) {
 
 async function getData() {
     const endpoints = {
-        slow: getEndpointUrl('slow'),
-        slowest: getEndpointUrl('slowest')
+        slow: buildEndpointUrl(config.latencies['slow']),
+        slowest: buildEndpointUrl(config.latencies['slowest'])
     }
 
     return config.isSequential ? await getDataSequentially(endpoints) : await getDataInParallel(endpoints);
 }
 
-function getEndpointUrl(latency) {
-    return `${config.apiUrl}?min=${config.latencies[latency].min}&max=${config.latencies[latency].max}`
+function buildEndpointUrl(latencyConfig) {
+    return `${config.apiUrl}?min=${latencyConfig.min}&max=${latencyConfig.max}`
 }
 
 async function getDataSequentially(endpoints) {
@@ -55,12 +55,10 @@ async function getDataSequentially(endpoints) {
 }
 
 async function getDataInParallel(endpoints) {
-    const slowEndpointResults = requestMultipleTimesInParallel(endpoints.slow, config.slowRequestsCount);
-    const slowestEndpointResults = requestMultipleTimesInParallel(endpoints.slowest, config.slowestRequestsCount);
+    const slowEndpointPromises = requestMultipleTimesInParallel(endpoints.slow, config.slowRequestsCount);
+    const slowestEndpointPromises = requestMultipleTimesInParallel(endpoints.slowest, config.slowestRequestsCount);
 
-    const result = await Promise.all([slowEndpointResults, slowestEndpointResults]);
-
-    return result;
+    return await Promise.all([...slowEndpointPromises, ...slowestEndpointPromises]);
 }
 
 async function requestMultipleTimesSequentially(url, count) {
@@ -72,12 +70,12 @@ async function requestMultipleTimesSequentially(url, count) {
     return result;
 }
 
-async function requestMultipleTimesInParallel(url, count) {
+function requestMultipleTimesInParallel(url, count) {
     const requestPromises = [];
     for (let i = 0; i < count; i++) {
         requestPromises.push(request(url));
     }
-    return Promise.all(requestPromises);
+    return requestPromises;
 }
 
 async function request(url) {
