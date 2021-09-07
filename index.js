@@ -17,7 +17,7 @@ async function getSomeDataFromTheAPI(req, res) {
 
     const fakePayload = fillSomeMemory(config.fakePayloadSizeInKB);
 
-    const {result, timeElapsedInSeconds} = await helper.runAndGetTimeElapsed(getData);
+    const { result, timeElapsedInSeconds } = await helper.runAndGetTimeElapsed(getData);
 
     console.log(`Response sent (${timeElapsedInSeconds})`);
 
