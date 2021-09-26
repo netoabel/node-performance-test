@@ -79,6 +79,11 @@ function requestMultipleTimesInParallel(url, count) {
 }
 
 async function request(url) {
-    const response = await axios.get(url);
+    let response;
+    try {
+        response = await axios.get(url);
+    } catch (error) {
+        console.error('Error fetching API data:', error.message);
+    }
     return response.data;
 }
