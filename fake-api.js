@@ -1,5 +1,6 @@
 const express = require('express');
 const helper = require('./helper.js');
+const config = require('./config.js');
 const Chance = require('chance');
 
 const chance = new Chance();
@@ -16,8 +17,8 @@ app.get('/slow-endpoint', slowEndpoint);
 async function slowEndpoint(req, res) {
     console.log('[/slow-endpoint] New incoming request.');
 
-    const minTimeInSeconds = req.query?.min || process.env.API_DEFAULT_MIN_LATENCY_SECONDS;
-    const maxTimeInSeconds = req.query?.max || process.env.API_DEFAULT_MAX_LATENCY_SECONDS;
+    const minTimeInSeconds = req.query.min || config.latencies.apiDefaults.min;
+    const maxTimeInSeconds = req.query.max || config.latencies.apiDefaults.max;
 
     const { timeElapsedInSeconds } = await helper.runAndGetTimeElapsed(waitSomeSeconds, minTimeInSeconds, maxTimeInSeconds);
 
